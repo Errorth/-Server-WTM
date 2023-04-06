@@ -1,5 +1,5 @@
 const fs = require('fs');
-
+const User = require("../models/User");
 const avatar = req.files.avatar; // получаем файл из запроса
 const filename = `${Date.now()}-${avatar.name}`; // генерируем уникальное имя файла
 const path = `./uploads/${filename}`; // указываем путь для сохранения файла

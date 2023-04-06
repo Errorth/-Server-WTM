@@ -1,13 +1,17 @@
 var createError = require('http-errors');
 var express = require('express');
+const http = require('http');
+const socketio = require('socket.io');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+const {connect} = require("./config/db");
+const app = express();
+const server = http.createServer(app);
+const io = socketio(server);
 
-var app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -37,9 +41,26 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
-const port = 5194
+const port = process.env.PORT || 3100
+
 app.listen(port, () => {
   console.log(`Server running on port ${port}`)
+  connect()
 })
+
+io.on('connection', (socket, ip) => {
+  console.log('A user connected');
+
+
+  socket.on('chat message', (msg) => {
+    console.log(`Received message: ${msg}`);
+    io.emit('chat message', msg);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('A user disconnected');
+  });
+});
+
 
 module.exports = app;
